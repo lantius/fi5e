@@ -1,0 +1,35 @@
+!!! 5
+html(lang="en")
+  head
+    title hifi5e
+    script(src='http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js',type='text/javascript')
+    link(rel='stylesheet',href='lib/openid.css',type='text/css')
+  body
+    h1 hifi5e
+
+    form#openid_form(method='post',action='/authenticate')
+      fieldset
+        legend Sign-in or create new account
+        div#openid_choice
+          p Please select your account provider:
+          div#openid_btns
+        div#openid_input_area
+          input#openid_identifier(type='text',name='openid_identifier')
+          input#openid_submit(type='submit',value='Login')
+        noscript
+          p 
+            | OpenID is service that allows you to log-on to many different websites using a single identity. Find out 
+            a(href='http://openid.net/what/')
+              | more about OpenID 
+            |  and 
+            a(href='http://openid.net/get/')
+              | how to get an OpenID enabled account
+              .
+
+    script(src='/lib/openid-jquery.js',type='text/javascript')
+    script(src='/lib/openid-en.js',type='text/javascript')
+    script
+      $(document).ready(function() {
+        openid.img_path = '/lib/images/'
+        openid.init('openid_identifier');
+      });

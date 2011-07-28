@@ -1,0 +1,31 @@
+body {
+  font-family: helvetica;
+}
+
+h1 {
+  font-family: 'Carme', sans-serif;
+}
+
+#fi5e {
+  
+}
+
+#fi5e input {
+  font-size: 150%;
+  vertical-align: middle;
+}
+#fi5e ul {
+  list-style-type: none;
+}
+
+#fi5e .star {
+  background-image: url('/static/star-gray.svg');
+  width: 48px;
+  height: 48px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+#heading {
+  float: right;
+}

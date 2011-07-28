@@ -1,0 +1,36 @@
+h1 HiFi5e
+
+form#fi5e(method='post')
+  fieldset
+    legend Today I...
+    ul
+      li
+        div#one.star 
+        input#one(size='30')
+      li
+        div#two.star 
+        input#two(size='30')
+      li
+        div#three.star 
+        input#three(size='30')
+      li
+        div#four.star 
+        input#four(size='30')
+      li
+        div#five.star 
+        input#five(size='30')
+        
+script
+  $(document).ready(function() {
+    $(".star").toggle(
+      function () {
+        $(this).css({"background-image":"url('/static/star.svg')"});
+        console.log("1");
+      },
+      function () {
+        $(this).css({"background-image":"url('/static/star-gray.svg')"});
+        console.log("2");
+      }
+    );
+  });
+        
