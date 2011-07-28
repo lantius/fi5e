@@ -10,46 +10,53 @@ app.use(express.session({ secret: "gang fight gang fight" }));
 app.use('/lib', express.static(__dirname + '/lib'));
 app.use('/static', express.static(__dirname + '/static'));
 
-var relyingParty = new openid.RelyingParty(
-    'http://localhost:3000/verify', // Verification URL (yours)
-    null, // Realm (optional, specifies realm for OpenID authentication)
-    false, // Use stateless verification
-    false, // Strict mode
-    []); // List of extensions to enable and include
-
-
-app.post('/authenticate', function(request, response) {
+app.post('/authenticate', function(req, res) {
   // Resolve identifier, associate, build authentication URL
+  console.log(req)
+  var relyingParty = new openid.RelyingParty(
+      'http://' + req.headers['host'] + '/verify', // Verification URL (yours)
+      null, // Realm (optional, specifies realm for OpenID authentication)
+      false, // Use stateless verification
+      false, // Strict mode
+      []); // List of extensions to enable and include
+  
   relyingParty.authenticate(
-    request.body.openid_identifier, // user supplied identifier
+    req.body.openid_identifier, // user supplied identifier
     false, // attempt immediate authentication first?
     function(error, authUrl)
     {
       if(error)
       {
-        response.send('Authentication failed: ' + error);
+        res.send('Authentication failed: ' + error);
       }
       else if (!authUrl)
       {
-        response.send('Authentication failed');
+        res.send('Authentication failed');
       }
       else
       {
-        response.redirect(authUrl);
+        res.redirect(authUrl);
       }    
     }
   );
 });
 
-app.get('/verify', function(request, response) {
-  var result = relyingParty.verifyAssertion(request, function(error, result) {
+app.get('/verify', function(req, res) {
+  var relyingParty = new openid.RelyingParty(
+      'http://' + req.headers['host'] + '/verify', // Verification URL (yours)
+      null, // Realm (optional, specifies realm for OpenID authentication)
+      false, // Use stateless verification
+      false, // Strict mode
+      []); // List of extensions to enable and include
+
+  var result = relyingParty.verifyAssertion(req, function(error, result) {
     if(error) {
-      response.send(error);
+      res.send(error);
     }
     if(result.authenticated) {
-      request.session.identifier = result.claimedIdentifier;
+      req.session.identifier = result.claimedIdentifier;
     }
-    response.redirect('/');
+    res.redirect('/');
   });
 });
 
