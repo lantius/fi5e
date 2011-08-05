@@ -6,31 +6,40 @@ form#fi5e(method='post')
     ul
       li
         div#one.star 
-        input#one(size='30')
+        input#one.thing(size='30',value=user.one)
       li
         div#two.star 
-        input#two(size='30')
+        input#two.thing(size='30',value=user.two)
       li
         div#three.star 
-        input#three(size='30')
+        input#three.thing(size='30',value=user.three)
       li
         div#four.star 
-        input#four(size='30')
+        input#four.thing(size='30',value=user.four)
       li
         div#five.star 
-        input#five(size='30')
+        input#five.thing(size='30',value=user.five)
         
 script
   $(document).ready(function() {
     $(".star").toggle(
       function () {
-        $(this).css({"background-image":"url('/static/star.svg')"});
-        console.log("1");
+        var star = $(this);
+        $.post('/star', { star: $(this).attr('id'), on: true }, function() {
+          star.css({"background-image":"url('/static/star.svg')"});
+        });
       },
       function () {
-        $(this).css({"background-image":"url('/static/star-gray.svg')"});
-        console.log("2");
+        var star = $(this);
+        $.post('/star', { star: $(this).attr('id'), on: false }, function() {
+          star.css({"background-image":"url('/static/star-gray.svg')"});
+        });
       }
     );
+    
+    $(".thing").blur(
+      function() {
+        $.post('/thing', { thing: $(this).attr('id'), value: $(this).val() });
+      });
   });
         

@@ -8,9 +8,10 @@ html(lang="en")
     script(src='/lib/modernizr.js',type='text/javascript')
   body
     div#heading
-    - if(user)
+    - if(null !== user.id)
       a(href='/logout')
         | logout
+      | last login: #{user.prettylastlogin}
     - else
       a(href='/login')
         | login
