@@ -27,7 +27,7 @@ client.connect();
 
 var tables = {
   users: "identifier varchar(255), firstlogin bigint, lastlogin bigint, one varchar(255), two varchar(255), three varchar(255), four varchar(255), five varchar(255)",
-  dates: "identifier varchar(255), cal_date date, one varchar(255), two varchar(255), three varchar(255), four varchar(255), five varchar(255), one_star boolean, two_star boolean, three_star boolean, four_star boolean, five_star boolean"
+  dates: "identifier varchar(255), cal_date date, one varchar(255), two varchar(255), three varchar(255), four varchar(255), five varchar(255), star_one boolean, star_two boolean, star_three boolean, star_four boolean, star_five boolean"
 };
 
 var create_table = function(client, tablename) {
@@ -45,7 +45,13 @@ var create_table = function(client, tablename) {
     });
 };
 
+var pg_date = function(now) {
+  return now.getFullYear() + '-' + now.getMonth() + '-' + now.getDate();
+}
+
 create_table(client, "users");
+create_table(client, "dates");
+
 
 app.post('/authenticate', function(req, res) {
   // Resolve identifier, associate, build authentication URL
@@ -95,18 +101,22 @@ app.get('/verify', function(req, res) {
       client.query("SELECT * FROM users WHERE identifier = $1", [req.session.identifier], function(err, result) {
         console.log(result)
         if (err) {
-          console.log("pg errorr: " + err);
-        } else if (!result || 0 == result.rows.length) {
+          console.log("pg error: " + err);
+        } else if (!result || 0 === result.rows.length) {
           console.log("inserting");
           
-          req.session.firstlogin = Date.now();
-          req.session.lastlogin = Date.now();
+          var now = new Date();
+          req.session.firstlogin = now;
+          req.session.lastlogin = now;
           
-          client.query("INSERT INTO users(identifier, firstlogin, lastlogin) values($1, $2, $3)", [req.session.identifier, (new Date()).getTime(), (new Date()).getTime()]);
+          client.query("INSERT INTO users(identifier, firstlogin, lastlogin) values($1, $2, $3)", [req.session.identifier, now.getTime(), now.getTime()]);
+          client.query("INSERT INTO dates(identifier, cal_date) values($1, $2)", [req.session.identifier, pg_date(now)]);
           
           // db.save(req.session.identifier, {firstlogin: Date.now(), lastlogin: Date.now()})
         } else {
           console.log("updating");
+          var now = new Date();
+          
           req.session.firstlogin = result.rows[0].firstlogin;
           req.session.lastlogin = result.rows[0].lastlogin;
           req.session.one = result.rows[0].one;
@@ -114,10 +124,27 @@ app.get('/verify', function(req, res) {
           req.session.three = result.rows[0].three;
           req.session.four = result.rows[0].four;
           req.session.five = result.rows[0].five;
-          client.query("UPDATE users SET lastlogin=$2 WHERE identifier = $1", [req.session.identifier, (new Date()).getTime()]);
+          client.query("UPDATE users SET lastlogin=$2 WHERE identifier = $1", [req.session.identifier, now.getTime()]);
+
+          client.query("SELECT * FROM dates WHERE identifier = $1 AND cal_date = $2 ", [req.session.identifier, pg_date(now)], function(err, result) {
+            if (err) {
+              console.log("pg error: " + err);
+            }
+            else if (0 === result.rows.length) {
+              client.query("INSERT INTO dates(identifier, cal_date) values($1, $2)", [req.session.identifier, pg_date(now)]);
+            }
+            else {
+              req.session.star_one = result.rows[0].star_one;
+              req.session.star_two = result.rows[0].star_two;
+              req.session.star_three = result.rows[0].star_three;
+              req.session.star_four = result.rows[0].star_four;
+              req.session.star_five = result.rows[0].star_five;
+            }
+            res.redirect('/');
+          });
+          
           // db.merge(req.session.identifier, {lastlogin: Date.now()})
         }
-        res.redirect('/');
       });
       
     }
@@ -153,6 +180,11 @@ app.get('/', function(req, res) {
     user.three = req.session.three;
     user.four = req.session.four;
     user.five = req.session.five;
+    user.star_one = req.session.star_one ? "on" : '';
+    user.star_two = req.session.star_two ? "on" : '';
+    user.star_three = req.session.star_three ? "on" : '';
+    user.star_four = req.session.star_four ? "on" : '';
+    user.star_five = req.session.star_five ? "on" : '';
   }
   res.render('index', {
     locals: { 
@@ -162,13 +194,17 @@ app.get('/', function(req, res) {
 });
 
 app.post('/star', function(req, res) {
-  console.log(req.body)
+  req.session["star_" + req.body.star] = (req.body.on === 'true');
+  if(req.session.identifier) {
+    client.query("UPDATE dates SET star_" + req.body.star + "=$1 WHERE identifier = $2 AND cal_date = $3", [(req.body.on === 'true'), req.session.identifier, pg_date(new Date())]);
+  }
   res.send();
 });
 
 app.post('/thing', function(req, res) {
-  console.log(req.body)
-  client.query("UPDATE users SET " + req.body.thing + "=$2 WHERE identifier = $1", [req.session.identifier, req.body.value]);
+  if(req.session.identifier) {
+    client.query("UPDATE users SET " + req.body.thing + "=$2 WHERE identifier = $1", [req.session.identifier, req.body.value]);
+  }
   req.session[req.body.thing]  = req.body.value;
   res.send();
 });

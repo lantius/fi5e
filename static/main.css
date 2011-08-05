@@ -20,7 +20,7 @@ h1 {
   list-style-type: none;
 }
 
-#fi5e .star {
+.star {
   background-image: url('/static/star-gray.svg');
   width: 48px;
   height: 48px;
@@ -28,8 +28,39 @@ h1 {
   vertical-align: middle;
 }
 
-
+.star.on {
+  background-image: url('/static/star.svg');
+}
 
 #heading {
   float: right;
+}
+
+#calendar .calendar-month  {
+  border-right: 1px solid #999;
+  border-top: 1px solid #999;
+}
+
+#calendar td, th {
+  border-left: 1px solid #999;
+  border-bottom: 1px solid #999;
+  text-align: center;
+  padding: 5px 0 15px 0px;
+}
+
+#calendar div.tiny {
+  width: 16px;
+  height: 16px; 
+  background-size: 100%;
+}
+
+
+#calendar .weekday {
+  background: #666;
+  color: white;
+  width: 120px;
+}
+
+#calendar .other-month {
+  background: #eee;
 }
