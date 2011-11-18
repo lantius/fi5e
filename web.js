@@ -27,7 +27,7 @@ client.connect();
 
 var tables = {
   users: "identifier varchar(255), firstlogin bigint, lastlogin bigint, one varchar(255), two varchar(255), three varchar(255), four varchar(255), five varchar(255)",
-  dates: "identifier varchar(255), cal_date date, one varchar(255), two varchar(255), three varchar(255), four varchar(255), five varchar(255), star_one boolean, star_two boolean, star_three boolean, star_four boolean, star_five boolean"
+  dates: "identifier varchar(255), cal_date date, one varchar(255), two varchar(255), three varchar(255), four varchar(255), five varchar(255), star_one boolean NOT NULL DEFAULT FALSE, star_two boolean NOT NULL DEFAULT FALSE, star_three boolean NOT NULL DEFAULT FALSE, star_four boolean NOT NULL DEFAULT FALSE, star_five boolean NOT NULL DEFAULT FALSE"
 };
 
 var create_table = function(client, tablename) {
@@ -171,6 +171,11 @@ app.get('/', function(req, res) {
   if(!req.session.identifier) {
     user = new Object();
     user.id = null;
+    res.render('index', {
+      locals: { 
+        user: user
+      }
+    });
   } else {
     user = new Object();
     user.id = req.session.identifier;
@@ -185,12 +190,24 @@ app.get('/', function(req, res) {
     user.star_three = req.session.star_three ? "on" : '';
     user.star_four = req.session.star_four ? "on" : '';
     user.star_five = req.session.star_five ? "on" : '';
+    
+    user.history = new Object();
+    client.query("SELECT cal_date, (star_one::int + star_two::int + star_three::int + star_four::int + star_five::int) AS rating FROM dates WHERE identifier = $1", [req.session.identifier], function(err, result) {
+      if (err) {
+        console.log("pg error: " + err);
+      }
+      else {
+        for(var i = 0; i < result.rows.length; i++) {
+          user.history[new Date(result.rows[i].cal_date).getDate()] = result.rows[i].rating;
+        }
+        res.render('index', {
+          locals: { 
+            user: user
+          }
+        });
+      }
+    });
   }
-  res.render('index', {
-    locals: { 
-      user: user
-    }
-  });
 });
 
 app.post('/star', function(req, res) {

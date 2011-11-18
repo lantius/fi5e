@@ -46,6 +46,7 @@ h1 {
   border-bottom: 1px solid #999;
   text-align: center;
   padding: 5px 0 15px 0px;
+  height: 36px;
 }
 
 #calendar div.tiny {
@@ -59,6 +60,10 @@ h1 {
   background: #666;
   color: white;
   width: 120px;
+}
+
+#calendar .day {
+  display: block;
 }
 
 #calendar .other-month {
