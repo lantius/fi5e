@@ -9,7 +9,7 @@ html(lang="en")
     script(src='/lib/jquery.calendar-widget.js',type='text/javascript')
   body
     div#heading
-      - if(null !== user.id)
+      - if(user.id)
         a(href='/logout')
           | logout
         | last login: #{user.prettylastlogin}

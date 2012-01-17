@@ -1,6 +1,7 @@
 var pretty = require("./lib/pretty");
 
-var express = require('express');
+var express = require('express')
+  , expose = require('express-expose');
 var openid = require('openid');
 var cradle = require('cradle');
 var pg = require('pg').native;
@@ -170,12 +171,8 @@ app.get('/', function(req, res) {
   var user;
   if(!req.session.identifier) {
     user = new Object();
-    user.id = null;
-    res.render('index', {
-      locals: { 
-        user: user
-      }
-    });
+    res.expose(user, 'express','user');
+    res.render('index');
   } else {
     user = new Object();
     user.id = req.session.identifier;
@@ -200,11 +197,8 @@ app.get('/', function(req, res) {
         for(var i = 0; i < result.rows.length; i++) {
           user.history[new Date(result.rows[i].cal_date).getDate()] = result.rows[i].rating;
         }
-        res.render('index', {
-          locals: { 
-            user: user
-          }
-        });
+        res.expose(user, 'express','user');
+        res.render('index');
       }
     });
   }
