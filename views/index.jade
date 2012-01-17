@@ -1,4 +1,4 @@
-h1 HiFi5e
+h1 Fi5e
 
 form#fi5e(method='post')
   fieldset
@@ -39,7 +39,7 @@ script
     
     $(".thing").blur(
       function() {
-        $.post('/thing', { thing: $(this).attr('id'), value: $(this).val() });
+        $.post('/thing', { thing: $(this).attr('id'), desc: $(this).val() });
       });
       
     $("#calendar").calendarWidget({
@@ -50,11 +50,4 @@ script
       $('#calendar .day5').append('<div class="tiny star on">');
   });
 
-
-  != "<script type='text/javascript'>"
-  != "  $(document).ready(function() {"
-  - each rating, day in user.history
-    !="    for(var i = 0; i < " + rating + "; i++) { $('#calendar .day" + day + "').append('<div class=\"tiny star on\">'); }"
-  !="  });"
-  != "</script>"
 
